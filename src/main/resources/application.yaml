@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: SocialWebSitePostService
+  datasource:
+    url: jdbc:postgresql://blog_db:5432/blog_db
+    username: admin
+    password: 12345
+  jpa:
+    hibernate:
+      dll-auto: update
+  database-platform: org.hibernate.dialect.PostgreSQLDialect
+  kafka:
+    producer:
+      bootstrap-servers: host.docker.internal:9092
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    topic: my_topic

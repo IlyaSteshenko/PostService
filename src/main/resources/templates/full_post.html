@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${fullPost.getTitle()}"></title>
+</head>
+<body>
+
+    <div>
+        <a th:href="@{/home}"> <- Back To Home Page</a>
+    </div>
+
+    <br/>
+
+    <!--  Данные о посте  -->
+
+    <div th:text="${fullPost.getText()}"></div>
+    <div th:text="'Creation Date: ' + ${creationDate}"></div>
+    <div th:text="'Creation Time: ' + ${creationTime}"></div>
+
+
+    <!--  Добавление комментариев  -->
+
+    <form th:method="post" th:object="${comment}" th:action="@{/post/{id}(id=${fullPost.id})}">
+        <p>Comment</p>
+        <textarea th:field="*{text}" style="width: 700px; height: 150px;"></textarea>
+        <input type="submit">
+    </form>
+
+    <br/>
+
+
+    <!--  Отображение комментариев  -->
+
+    <h3 th:text="'Comments (' + ${comments.size()} + ')'"></h3>
+    <div th:each="comment : ${comments}">
+        <div th:text="'Comment from User ' + ${comment.getUserId()}"></div>
+        <div th:text="${comment.getText()}"></div>
+        <br/>
+    </div>
+
+</body>
+</html>

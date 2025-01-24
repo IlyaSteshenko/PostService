@@ -1,0 +1,66 @@
+volumes:
+  blog_pg:
+
+services:
+  blog_db:
+    image: postgres:16.0-alpine
+    container_name: blog_db
+    restart: always
+    ports:
+      - "5431:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=blog_db
+    volumes:
+      - blog_pg:/var/lib/postgresql/data
+    networks:
+      - net
+  post_service:
+    build: .
+    container_name: post_service
+    ports:
+      - "8000:8080"
+    depends_on:
+      - blog_db
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://blog_db:5432/blog_db'
+      SPRING_DATASOURCE_USERNAME: 'admin'
+      SPRING_DATASOURCE_PASSWORD: '12345'
+    networks:
+      - net
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    container_name: zookeeper
+    networks:
+      - net
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    ports:
+      - "9092:29092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://kafka:9092
+      KAFKA_LISTENERS: INSIDE://kafka:29092,OUTSIDE://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPIC: "my_topic:1:3"
+    networks:
+      - net
+
+  notification_service:
+    build: <path to notification service>
+    container_name: notification_service
+    ports:
+      - "8082:8080"
+    networks:
+      - net
+
+networks:
+  net:
+    driver: bridge
